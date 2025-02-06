@@ -1,83 +1,141 @@
--- KeyAuth Integration with Fluent UI and Trainer
+print(' KeyAuth Lua Example - https://github.com/mazk5145/')
 local HttpService = game:GetService("HttpService")
 local StarterGui = game:GetService("StarterGui")
+local LuaName = "KeyAuth Lua Example"
 
--- Application Details
-local Name = "Templos720's Application"
-local Ownerid = "QDCNFnSkHu"
-local APPVersion = "1.0"
+--* Configuration *--
+local initialized = false
 local sessionid = ""
 
--- Initialize Application
-local req = game:HttpGet('https://keyauth.win/api/1.1/?name=' .. Name .. '&ownerid=' .. Ownerid .. '&type=init&ver=' .. APPVersion)
-local data = HttpService:JSONDecode(req)
 
-if not data.success then
-    StarterGui:SetCore("SendNotification", {
-        Title = "KeyAuth",
-        Text = "Error: " .. data.message,
-        Duration = 5
-    })
-    return
+StarterGui:SetCore("SendNotification", {
+    Title = LuaName,
+    Text = " Intializing...",
+    Duration = 5
+})
+
+
+--* Application Details *--
+Name = "Templos720's Application" --* Application Name
+Ownerid = "QDCNFnSkHu" --* OwnerID
+APPVersion = "1.0"     --* Application Version
+
+local req = game:HttpGet('https://keyauth.win/api/1.1/?name=' .. Name .. '&ownerid=' .. Ownerid .. '&type=init&ver=' .. APPVersion)
+
+if req == "KeyAuth_Invalid" then 
+   print(" Error: Application not found.")
+
+   StarterGui:SetCore("SendNotification", {
+	   Title = LuaName,
+	   Text = " Error: Application not found.",
+	   Duration = 3
+   })
+
+   return false
 end
 
-sessionid = data.sessionid
+local data = HttpService:JSONDecode(req)
 
--- Load Fluent UI
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/yourrepo/fluent-ui.lua"))()
-local Window = Library.CreateLib("Fluent Trainer - KeyAuth")
+if data.success == true then
+   initialized = true
+   sessionid = data.sessionid
+   --print(req)
+elseif (data.message == "invalidver") then
+   print(" Error: Wrong application version..")
 
--- Create Tabs
+   StarterGui:SetCore("SendNotification", {
+	   Title = LuaName,
+	   Text = " Error: Wrong application version..",
+	   Duration = 3
+   })
+
+   return false
+else
+   print(" Error: " .. data.message)
+   return false
+end
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/PDCloud/Pivl-CDN/main/keyauth/robloxUI.lua"))()
+local Window = Library.CreateLib("KeyAuth Lua Example [ROBLOX] - github.com/mazk5145")
+
+-- Tabs --
+local Tab = Window:NewTab("Welcome")
+local WelcomeSection = Tab:NewSection("Welcome")
+
 local LoginTab = Window:NewTab("Login")
 local MainSection = LoginTab:NewSection("Login")
 
-local Username, Password = "Templo", "Templos@123"
+-- Configuration !! KEEP CLEAR !!--
+local Username = "Templos"
+local Password = "Templos@123"
 
-MainSection:NewTextBox("Username", "Enter your username", function(value)
-    Username = value
+WelcomeSection.NewLabel("Application Details", "Number of users: " .. data.appinfo.numUsers .. "\nNumber of online users: " .. data.appinfo.numOnlineUsers .. "\n Number of keys: " .. data.appinfo.numKeys .. "\n Application Version: " .. data.appinfo.version)
+
+-- Text Boxes and Login Button --
+MainSection:NewTextBox("Username", "Please provide Username.", function(state)
+    if state then
+        Username = state
+    end
 end)
 
-MainSection:NewTextBox("Password", "Enter your password", function(value)
-    Password = value
+MainSection:NewTextBox("Password", "Please provide Password.", function(state)
+    if state then
+        Password = state
+    end
 end)
 
-MainSection:NewButton("Login", "Authenticate via KeyAuth", function()
-    if Username == "" or Password == "" then
+MainSection:NewButton("Login to Application ?", "Please provide Password.", function(state)
+    if Username == "" then
         StarterGui:SetCore("SendNotification", {
-            Title = "KeyAuth",
-            Text = "Error: Username or Password is empty.",
+            Title = LuaName,
+            Text = " Error: Username is empty.",
             Duration = 3
         })
-        return
+        return false
     end
-
-    local loginReq = game:HttpGet('https://keyauth.win/api/1.1/?name=' .. Name .. '&ownerid=' .. Ownerid .. '&type=login&username=' .. Username .. '&pass=' .. Password .. '&ver=' .. APPVersion .. '&sessionid=' .. sessionid)
-    local loginData = HttpService:JSONDecode(loginReq)
-
-    if not loginData.success then
+    if Password == "" then
         StarterGui:SetCore("SendNotification", {
-            Title = "KeyAuth",
-            Text = "Error: " .. loginData.message,
-            Duration = 5
+            Title = LuaName,
+            Text = " Error: Password is empty.",
+            Duration = 3
         })
-        return
+        return false
     end
 
+    Library.Destroy()
+
+    local req = game:HttpGet('https://keyauth.win/api/1.1/?name=' .. Name .. '&ownerid=' .. Ownerid .. '&type=login&username=' .. Username .. '&pass=' .. Password ..'&ver=' .. APPVersion .. '&sessionid=' .. sessionid)
+    local data = HttpService:JSONDecode(req)
+    
+    
+    if data.success == false then 
+        print(" Error: " .. data.message )
+    
+       StarterGui:SetCore("SendNotification", {
+           Title = LuaName,
+           Text = " Error: " .. data.message,
+           Duration = 5
+       })
+    
+        return false
+    end
+    
     StarterGui:SetCore("SendNotification", {
-        Title = "KeyAuth",
-        Text = "Login Successful!",
+        Title = LuaName,
+        Text = " Successfully Authorized :)",
         Duration = 5
     })
 
-    -- Trainer UI after login
-    local TrainerTab = Window:NewTab("Trainer")
-    local TrainerSection = TrainerTab:NewSection("Trainer Options")
+    -- Your Code --
 
-    TrainerSection:NewButton("Activate God Mode", "Become invincible", function()
-        -- God Mode logic
-    end)
+    -- Example Code --
+    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/PDCloud/Pivl-CDN/main/keyauth/robloxUI.lua"))()
+    local Window = Library.CreateLib("KeyAuth Lua Example [ROBLOX] - github.com/mazk5145")
 
-    TrainerSection:NewButton("Unlock All Skills", "Gain access to all abilities", function()
-        -- Unlock skills logic
-    end)
+
+    local Tab = Window:NewTab("Dashboard")
+    local Dashboard = Tab:NewSection("Dashboard")
+
+    Dashboard.NewLabel("User Data", "Username: " .. data.info.username .. "\nIP Address: " .. data.info.ip .."\nCreated at: " .. data.info.createdate .. "\nLast login at:" .. data.info.lastlogin)
+
 end)
