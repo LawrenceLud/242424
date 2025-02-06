@@ -129,13 +129,5 @@ MainSection:NewButton("Login to Application ?", "Please provide Password.", func
     -- Your Code --
 
     -- Example Code --
-    local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/PDCloud/Pivl-CDN/main/keyauth/robloxUI.lua"))()
-    local Window = Library.CreateLib("KeyAuth Lua Example [ROBLOX] - github.com/mazk5145")
-
-
-    local Tab = Window:NewTab("Dashboard")
-    local Dashboard = Tab:NewSection("Dashboard")
-
-    Dashboard.NewLabel("User Data", "Username: " .. data.info.username .. "\nIP Address: " .. data.info.ip .."\nCreated at: " .. data.info.createdate .. "\nLast login at:" .. data.info.lastlogin)
-
+    print("teste")
 end)
