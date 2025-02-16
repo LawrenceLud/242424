@@ -1,4 +1,3 @@
-
 local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
@@ -90,10 +89,9 @@ AutoRelics:OnChanged(function(enabled)
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    
+
     local trinketFolder = workspace:WaitForChild("Game"):WaitForChild("Trinkets"):WaitForChild("Spawned")
-    local running = enabled
-    local connection = nil
+    local connection
 
     -- Função para teleportar para a primeira Part encontrada
     local function teleportToRelic()
@@ -107,10 +105,13 @@ AutoRelics:OnChanged(function(enabled)
     end
 
     -- Loop para verificar continuamente
+    local running = enabled
     task.spawn(function()
         while running do
             if AutoRelics.Value then
                 teleportToRelic()
+            else
+                running = false
             end
             task.wait(1)
         end
@@ -123,9 +124,7 @@ AutoRelics:OnChanged(function(enabled)
                 teleportToRelic()
             end
         end)
-    else
-        if connection then
-            connection:Disconnect()
-        end
+    elseif connection then
+        connection:Disconnect()
     end
 end)
