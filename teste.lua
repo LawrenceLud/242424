@@ -93,11 +93,15 @@ AutoRelics:OnChanged(function(enabled)
     local trinketFolder = workspace:WaitForChild("Game"):WaitForChild("Trinkets"):WaitForChild("Spawned")
     local connection
 
-    -- Função para teleportar para a primeira Part encontrada
+    -- Função para teleportar para qualquer objeto que spawnar na pasta
     local function teleportToRelic()
         for _, relic in pairs(trinketFolder:GetChildren()) do
-            if relic:IsA("Part") and relic:FindFirstChild("TouchInterest") then
-                humanoidRootPart.CFrame = relic.CFrame + Vector3.new(0, 3, 0) -- Teleporta acima
+            if relic:FindFirstChild("TouchInterest") or relic:IsA("Part") or relic:IsA("MeshPart") or relic:IsA("Model") then
+                if relic:IsA("Model") and relic.PrimaryPart then
+                    humanoidRootPart.CFrame = relic.PrimaryPart.CFrame + Vector3.new(0, 3, 0) -- Teleporta acima do PrimaryPart
+                else
+                    humanoidRootPart.CFrame = relic:GetPivot() + Vector3.new(0, 3, 0) -- Teleporta acima da posição geral
+                end
                 task.wait(0.7) -- Tempo para evitar bugs
                 return
             end
@@ -117,10 +121,11 @@ AutoRelics:OnChanged(function(enabled)
         end
     end)
 
-    -- Aguarda novas relíquias sendo geradas e teleporta automaticamente
+    -- Aguarda novos objetos sendo gerados e teleporta automaticamente
     if enabled then
         connection = trinketFolder.ChildAdded:Connect(function(child)
-            if child:IsA("Part") and AutoRelics.Value then
+            task.wait(0.2) -- Pequeno delay para evitar erro ao pegar objetos recém-gerados
+            if AutoRelics.Value then
                 teleportToRelic()
             end
         end)
@@ -128,3 +133,4 @@ AutoRelics:OnChanged(function(enabled)
         connection:Disconnect()
     end
 end)
+
